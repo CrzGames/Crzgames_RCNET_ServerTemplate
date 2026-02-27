@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 (2026-02-27)
+
+
+### Features
+
+* init project and all files ([7cab788](https://github.com/CrzGames/Crzgames_RCNET_ServerTemplate/commit/7cab7886dda598c3e4311a373b55abf90bd51a15))
+
 ## [1.0.4](https://github.com/CrzGames/Crzgames_RCNET/compare/v1.0.3...v1.0.4) (2026-02-26)
 
 
