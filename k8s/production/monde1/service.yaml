@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prod-seatyrants-worldserver-service-monde1
+  namespace: prod-seatyrants-worldserver-monde1
+spec:
+  clusterIP: None  # Headless service
+  selector:
+    app: prod-seatyrants-worldserver-monde1
+  ports:
+    - name: udp
+      port: 4001
+      targetPort: 4001
+      protocol: UDP

@@ -1,0 +1,128 @@
+# CMake 3.28.0 est la version minimale requise pour ce projet
+cmake_minimum_required(VERSION 3.28.0)
+
+# ============================================================
+# Project Configuration
+# ============================================================
+# Nom du projet : rcnet-server-template
+#
+# Langages :
+#   - CXX   : C++ pour le moteur de serveur jeu (RCNET) et les 
+#             fonctionnalités principales
+# ============================================================
+project(rcnet-server-template
+  LANGUAGES C CXX
+)
+
+# ============================================================
+# Output Directories
+# ============================================================
+# Gestion du dossier de sortie selon le générateur CMake :
+# - Visual Studio / Xcode : multi-config (Debug/Release/...)
+# - Ninja / Makefiles     : single-config
+# ============================================================
+if(CMAKE_GENERATOR MATCHES "Visual Studio|Xcode")
+  # Multi-config generators
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+else()
+  # Single-config generators (Makefiles, Ninja, etc.)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+endif()
+
+# ============================================================
+# Dépendances vendored — add_subdirectory
+# ============================================================
+# On inclut les dépendances vendored (clonées via setup_dependencies.cmake) 
+# en utilisant add_subdirectory.
+# ============================================================
+add_subdirectory(dependencies/Crzgames_RCNET EXCLUDE_FROM_ALL)
+
+# ============================================================
+# Build Environment (dev / staging / production)
+# ============================================================
+set(SERVER_ENV "dev" CACHE STRING "Build environment: dev, staging or production")
+set_property(CACHE SERVER_ENV PROPERTY STRINGS "dev" "staging" "production")
+if(NOT SERVER_ENV STREQUAL "dev"
+   AND NOT SERVER_ENV STREQUAL "staging"
+   AND NOT SERVER_ENV STREQUAL "production")
+  message(FATAL_ERROR "SERVER_ENV invalide: '${SERVER_ENV}' (attendu: dev, staging ou production)")
+endif()
+
+# ============================================================
+# rcnet_target_compile_definitions
+# ============================================================
+function(rcnet_target_compile_definitions target_name)
+  # Environement de build (dev/staging/production) : ajoute des macros préprocesseur pour différencier les builds
+  # dans le code source, par exemple pour activer des logs de debug en dev mais pas en production.
+  if(SERVER_ENV STREQUAL "dev")
+    target_compile_definitions(${target_name} PRIVATE
+      SERVER_ENV_DEV=1
+      SERVER_ENV_STAGING=0
+      SERVER_ENV_PRODUCTION=0
+    )
+  elseif(SERVER_ENV STREQUAL "staging")
+    target_compile_definitions(${target_name} PRIVATE
+      SERVER_ENV_DEV=0
+      SERVER_ENV_STAGING=1
+      SERVER_ENV_PRODUCTION=0
+    )
+  else() # production
+    target_compile_definitions(${target_name} PRIVATE
+      SERVER_ENV_DEV=0
+      SERVER_ENV_STAGING=0
+      SERVER_ENV_PRODUCTION=1
+    )
+  endif()
+endfunction()
+
+# ============================================================
+# Sources & Headers (RCNET)
+# ============================================================
+# Récupère automatiquement tous les fichiers sources (.cpp) et 
+# d'en-tête (.h) du projet pour les ajouter à la target.
+# ============================================================
+
+# Ajouter les fichiers sources du server de jeu.
+file(GLOB_RECURSE SOURCES 
+  "${PROJECT_SOURCE_DIR}/src/*.cpp"
+)
+
+# Ajouter les fichiers d'en-tête du server de jeu.
+file(GLOB_RECURSE HEADERS 
+  "${PROJECT_SOURCE_DIR}/include/*.h"
+)
+
+# ============================================================
+# Target principale du projet
+# ============================================================
+# Crée la target exécutable principale du projet en incluant 
+# les sources et les headers.
+# ============================================================
+add_executable(${PROJECT_NAME}
+  ${SOURCES}
+  ${HEADERS}
+)
+
+# ============================================================
+# Include Directories
+# ============================================================
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "${PROJECT_SOURCE_DIR}/include"
+)
+
+# ============================================================
+# Compile Definitions
+# ============================================================
+rcnet_target_compile_definitions(${PROJECT_NAME})
+
+# ============================================================
+# Linker avec la bibliothèque RCNET
+#
+# Lie la target à la bibliothèque RCNET pour pouvoir utiliser le moteur
+# de serveur.
+# ============================================================
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  rcnet
+)

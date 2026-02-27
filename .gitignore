@@ -1,0 +1,13 @@
+# IDE files
+.idea
+.vscode
+.vs
+
+# Build files
+/build/
+
+# macOS files
+.DS_Store
+
+# dependencies
+/dependencies/

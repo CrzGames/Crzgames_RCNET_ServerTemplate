@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prod-seatyrants-worldserver-monde1
+  namespace: prod-seatyrants-worldserver-monde1
+spec:
+  replicas: 22 # Nombre de maps dans SeaTyrants
+  serviceName: prod-seatyrants-worldserver-service-monde1
+  selector:
+    matchLabels:
+      app: prod-seatyrants-worldserver-monde1
+  template:
+    metadata:
+      labels:
+        app: prod-seatyrants-worldserver-monde1
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: prod-seatyrants-worldserver-monde1
+          image: corentin35/seatyrants-worldserver:${TAG_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4001
+              name: udp
+              protocol: UDP
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name

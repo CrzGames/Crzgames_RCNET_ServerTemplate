@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: staging-seatyrants-worldserver-privatetest
+  namespace: staging-seatyrants-worldserver-privatetest
+spec:
+  replicas: 22 # Nombre de maps dans SeaTyrants
+  serviceName: staging-seatyrants-worldserver-service-privatetest
+  selector:
+    matchLabels:
+      app: staging-seatyrants-worldserver-privatetest
+  template:
+    metadata:
+      labels:
+        app: staging-seatyrants-worldserver-privatetest
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: staging-seatyrants-worldserver-privatetest
+          image: corentin35/seatyrants-worldserver:staging-${TAG_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4001
+              name: udp
+              protocol: UDP
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
