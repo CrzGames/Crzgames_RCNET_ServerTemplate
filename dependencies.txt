@@ -1,3 +1,3 @@
 # Format: library=repository:tag ou library=repository:commit_sha
 
-Crzgames_RCNET=https://github.com/CrzGames/Crzgames_RCNET.git:d5a730eb21e71e7ae90b4c8120fc2dfb285734f2
+Crzgames_RCNET=https://github.com/CrzGames/Crzgames_RCNET.git:daea17d326b8eaf348c08beab3d6230ccbe48305
