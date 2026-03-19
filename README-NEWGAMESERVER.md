@@ -8,7 +8,11 @@ Objectif:
 - aligner les noms/images Kubernetes (Agones)
 - aligner la CI/CD (nom de l'image Docker, tags, deploiement)
 
+<br /><br />
+
 ---
+
+<br /><br 
 
 ## 1) Renommer la target CMake (nom principal du serveur)
 
@@ -36,7 +40,12 @@ Important:
 - ce nom devient le nom du binaire final
 - ce meme nom doit etre reporte partout (Docker, CI, k8s si image/tag le reference)
 
+<br /><br />
+
 ---
+
+<br /><br 
+
 
 ## 2) Mettre a jour Dockerfiles (nom du binaire)
 
@@ -60,7 +69,12 @@ RUN chmod +x /app/my-new-gameserver
 CMD ["./my-new-gameserver"]
 ```
 
+<br /><br />
+
 ---
+
+<br /><br 
+
 
 ## 3) Kubernetes / Agones (namespace + metadata + image)
 
@@ -129,7 +143,12 @@ par votre nouveau repository image, par exemple:
 image: monorg/my-new-gameserver:${TAG_VERSION}
 ```
 
+<br /><br />
+
 ---
+
+<br /><br 
+
 
 ## 4) CI/CD (ne pas oublier le nom d'image Docker)
 
@@ -175,7 +194,12 @@ Le repo image pousse en CI doit etre exactement le meme que celui reference dans
 
 Sinon, Kubernetes tirera une image inexistante/non mise a jour.
 
+<br /><br />
+
 ---
+
+<br /><br 
+
 
 ## 5) Resume des changements minimaux a faire
 
