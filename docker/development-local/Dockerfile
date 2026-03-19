@@ -36,8 +36,8 @@ FROM debian:12.13-slim AS final
 WORKDIR /app
 
 # Copie uniquement le binaire compilé
-COPY --from=builder /app/build/bin/*/rcnet-server-template .
+COPY --from=builder /app/build/rcnet-server-template .
 
 # Run the server
-CMD chmod +x rcnet-server-template && \
-    ./rcnet-server-template
+RUN chmod +x /app/rcnet-server-template
+CMD ["./rcnet-server-template"]
