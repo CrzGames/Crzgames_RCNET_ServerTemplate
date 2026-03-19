@@ -42,7 +42,7 @@ jobs:
       - name: Connect to the cluster K3S for deploy
         uses: actions-hub/kubectl@master
         env:
-          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG_CLUSTER_PRODUCTION_CRZGAMES_BASE64 }}
         with:
           args: |
             apply -f k8s/production/namespace.yaml
