@@ -37,4 +37,7 @@ jobs:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG_CLUSTER_STAGING_CRZGAMES_BASE64 }}
         with:
           args: |
-            apply -f k8s/staging/fleet.yaml
+            apply -f k8s/staging/namespace.yaml
+            -f k8s/staging/fleet.yaml
+            -f k8s/staging/fleetautoscaler-type-buffer.yaml
+            -f k8s/staging/docker-registry-secret.yaml

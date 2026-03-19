@@ -45,4 +45,7 @@ jobs:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
         with:
           args: |
-            apply -f k8s/production/fleet.yaml
+            apply -f k8s/production/namespace.yaml
+            -f k8s/production/fleet.yaml
+            -f k8s/production/fleetautoscaler-type-buffer.yaml
+            -f k8s/production/docker-registry-secret.yaml

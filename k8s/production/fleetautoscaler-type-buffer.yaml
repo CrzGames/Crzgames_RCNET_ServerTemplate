@@ -1,0 +1,28 @@
+apiVersion: autoscaling.agones.dev/v1
+kind: FleetAutoscaler
+metadata:
+  name: fleetautoscalerbuffer-aetherroyale-game-server
+  namespace: gameservers
+spec:
+  # Nom de la flotte à laquelle se connecter. Doit correspondre à une flotte existante dans le même espace de noms (namespace) que ce FleetAutoscaler.
+  fleetName: fleet-aetherroyale-game-server # Dois avoir le meme nom exact que la ressource "Fleet" deployer.
+  policy:
+    type: Buffer
+    buffer:
+      # Taille d'une réserve d'instances de serveur de jeu « Ready »
+      # Le FleetAutoscaler ajuste la taille de la flotte pour maintenir cette réserve, à mesure que des instances sont allouées ou supprimées
+      # Cette valeur peut être spécifiée en valeur absolue (ex. : 5) ou en pourcentage (ex. : 5 %).
+      bufferSize: 2
+      # Taille minimale de la flotte à définir par ce FleetAutoscaler.
+      # Si non spécifiée ou 0, la taille minimale réelle de la flotte sera bufferSize.
+      minReplicas: 0
+      # Taille maximale de la flotte pouvant être définie par ce FleetAutoscaler
+      # Obligatoire
+      maxReplicas: 10
+  sync:
+    # Type de synchronisation. Pour l'instant, seul FixedInterval est disponible.
+    type: FixedInterval
+    # paramètres de la synchronisation à intervalle fixe
+    fixedInterval:
+      # le temps en secondes entre chaque mise à l'échelle automatique
+      seconds: 30
