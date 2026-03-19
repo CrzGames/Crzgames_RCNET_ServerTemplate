@@ -1,5 +1,5 @@
 # Étape 1 : Build stage
-FROM debian:12.11-slim AS builder
+FROM debian:12.13-slim AS builder
 
 WORKDIR /app
 
@@ -11,40 +11,33 @@ RUN apt-get update && \
     apt-get install -y \
         build-essential \
         cmake \
-        git \
-        libssl-dev
+        git
 
-# Installer les dépendances RCNET et autres dépendances nécessaires
+# Install project dependencies
 RUN cmake -P cmake/setup_dependencies.cmake
 
 # Run the build script to compile the world server
 RUN mkdir build && \
     cd build && \
-    cmake .. && \
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DRCNET_ARCH="x64" \
+        -DSERVER_ENV=production && \
     make -j$(nproc)
 
 # Étape 2 : Runtime minimal
-FROM debian:12.11-slim AS final
+FROM debian:12.13-slim AS final
 
 WORKDIR /app
 
-# Copie uniquement le binaire compilé et les fichiers nécessaires depuis l'étape de build
-COPY --from=builder /app/build/bin/*/seatyrants-worldserver .
-COPY --from=builder /app/docker/production/redis_ca.pem /certs/redis_ca.pem
+# Copie uniquement le binaire compilé
+COPY --from=builder /app/build/bin/*/rcnet-server-template .
 
 # Set environment variables
-ENV ENVIRONMENT_STAGE=production
-ENV NATS_NKEY_PRIVATE_KEY=xxxx
-ENV NATS_NKEY_PUBLIC_KEY=xxxx
-ENV NATS_SERVER_URL=tls://nats.tcp.crzcommon.com:4223
-ENV SEATYRANTS_PUBLIC_KEY_JWT_BASE64=xxxx
-ENV REDIS_HOST=109.234.165.225
-ENV REDIS_PORT=6382
-ENV REDIS_PASSWORD=xxxx
-ENV DISCORD_WEBHOOK_URL=/api/webhooks/1267750558345854988/x-4T9M5ciCtKvEr2XqTnQJ_UzU9jfaPZa53Pn1O0IYpCT4q2P09uRhBrFAAw8oO5Novw
-ENV DISCORD_WEBHOOK_IMAGE_URL=https://raw.githubusercontent.com/CrzGames/Crzcommon_Assets/main/assets/seatyrants_logo2.png
-ENV LOG_LEVEL=ERROR
+ENV NATS_NKEY_PRIVATE_KEY=SUAASTIOW4YEQVFSLEB56GOSWOVCWCAQ442JM36SMWJSESU7MFMRQCHSFY
+ENV NATS_NKEY_PUBLIC_KEY=UCKN4SFCKLL7ZAHVL45GNGWCLG4IHGSQFH6NZ6RDPD3WB6SSXAU4LVBL
+ENV SERVER_ED25519_PRIVATE_SEED_HEX=d936ec5e91cc8adc69b715e4a0835f3d92f333f2302238473eec40f749765b0b
 
 # Run the world server
-CMD chmod +x seatyrants-worldserver && \
-    ./seatyrants-worldserver
+CMD chmod +x rcnet-server-template && \
+    ./rcnet-server-template
