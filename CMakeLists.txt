@@ -32,6 +32,17 @@ else()
 endif()
 
 # ============================================================
+# Build Options RCNET (Feature toggles)
+# ============================================================
+# Toutes les options RCNET_* qui permettent d'activer/désactiver
+# des modules, features ou intégrations SDK.
+# ============================================================
+
+# Toujours désactivé dans un server template
+set(RCNET_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
+set(RCNET_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+
+# ============================================================
 # Dépendances vendored — add_subdirectory
 # ============================================================
 # On inclut les dépendances vendored (clonées via setup_dependencies.cmake) 
