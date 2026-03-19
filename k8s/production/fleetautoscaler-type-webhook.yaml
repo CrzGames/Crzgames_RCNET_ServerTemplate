@@ -1,11 +1,11 @@
 apiVersion: autoscaling.agones.dev/v1
 kind: FleetAutoscaler
 metadata:
-  name: fleetautoscalerwebhook-aetherroyale-game-server
-  namespace: gameservers
+  name: prod-fleetautoscalerwebhook-aetherroyale
+  namespace: prod-aetherroyale-agones-gameservers
 spec:
   # Nom de la flotte à laquelle se connecter. Doit correspondre à une flotte existante dans le même espace de noms (namespace) que ce FleetAutoscaler.
-  fleetName: fleet-aetherroyale-game-server # Dois avoir le meme nom exact que la ressource "Fleet" deployer.
+  fleetName: prod-fleet-aetherroyale # Dois avoir le meme nom exact que la ressource "Fleet" deployer.
   policy:
     type: Webhook
     webhook:

@@ -1,8 +1,8 @@
 apiVersion: agones.dev/v1
 kind: Fleet
 metadata:
-  name: fleet-aetherroyale-game-server
-  namespace: gameservers
+  name: prod-fleet-aetherroyale
+  namespace: prod-aetherroyale-agones-gameservers
 spec:
   # Définit l'organisation des serveurs de jeu au sein du cluster.
   # Options possibles :
