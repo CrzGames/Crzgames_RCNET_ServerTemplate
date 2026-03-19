@@ -43,10 +43,10 @@ spec:
     spec:
       ports:
         - name: default
-          # Choisi un port libre sur le node (par exemple : entre 7000 et 9000) et faire un mapping de ce port externe -> vers le containerPort 7654
+          # Choisi un port libre sur le node (par exemple : entre 7000 et 9000) et faire un mapping de ce port externe -> vers le containerPort 12345
           portPolicy: Dynamic
-          # le port ouvert sur le processus du serveur de jeu
-          containerPort: 7654
+          # le port ouvert sur le processus du serveur de jeu (peu être le port UDP du serveur de jeu ENet)
+          containerPort: 12345
           # Protocole utilisé pour ce port. Les options sont :
           # - « UDP » (par défaut) : utilise le protocole UDP.
           # - « TCP » : utilise le protocole TCP.
