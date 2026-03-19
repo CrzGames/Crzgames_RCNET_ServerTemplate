@@ -35,4 +35,14 @@ jobs:
           push: true
           tags: corentin35/rcnet-server-template:${{ steps.previoustag.outputs.tag }}
 
-      # Puis ensuite déployer sur le cluster pour Agones en utilisant l'image Docker précédemment créée, en taguant l'image avec le numéro de version de la release.
+      - name: Replace image tag in fleet.yaml for Kubernetes
+        run: |
+          sed -i 's/\${TAG_VERSION}/'${{ steps.previoustag.outputs.tag }}'/g' k8s/production/fleet.yaml
+
+      - name: Connect to the cluster K3S for deploy
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
+        with:
+          args: |
+            apply -f k8s/production/fleet.yaml

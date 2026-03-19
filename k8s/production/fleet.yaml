@@ -1,0 +1,135 @@
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: fleet-aetherroyale-game-server
+  namespace: gameservers
+spec:
+  # Définit l'organisation des serveurs de jeu au sein du cluster.
+  # Options possibles :
+  # « Packed » (par défaut) est destiné aux clusters Kubernetes dynamiques, tels que les fournisseurs de cloud, où l'on souhaite regrouper les ressources.
+  # « Distributed » est destiné aux clusters Kubernetes statiques, où l'on souhaite répartir les ressources sur l'ensemble du cluster.
+  scheduling: Packed
+  strategy:
+      # Stratégie de remplacement lors du changement de modèle de serveur de jeu. L'option par défaut est « RollingUpdate ».
+      # « RollingUpdate » incrémente la valeur de maxSurge à chaque itération, tout en la décrémentant de maxUnavailable à chaque
+      # itération, jusqu'à ce que tous les serveurs de jeu soient passés d'une version à l'autre.
+      # « Recreate » arrête tous les serveurs de jeu non alloués et en démarre un nouveau avec les nouvelles informations pour les remplacer.
+    type: RollingUpdate
+    rollingUpdate:
+      # Pourcentage de GameServers SUPPLÉMENTAIRES que Kubernetes/Agones
+      # a le droit de créer temporairement pendant la mise à jour.
+      #
+      # Exemple avec 100 serveurs : 
+      # maxSurge: 25%  → Agones peut monter jusqu’à 125 serveurs
+      # pendant le déploiement de la nouvelle version.
+      #
+      # Cela évite de manquer de serveurs READY pendant l’update.
+      maxSurge: 25%
+
+      # Pourcentage MAXIMUM de GameServers existants que l’on autorise
+      # à être arrêtés EN MÊME TEMPS pendant l’update.
+      #
+      # IMPORTANT :
+      # - Les serveurs ALLOCATED (avec des joueurs) NE sont PAS tués
+      # - Seuls les serveurs READY (vides) sont concernés
+      #
+      # Exemple avec 100 serveurs :
+      # maxUnavailable: 25% → jusqu’à 25 serveurs READY peuvent être retirés
+      # pendant que 25 nouveaux démarrent.
+      #
+      # Plus cette valeur est petite, plus l’update est lent mais sûr.
+      maxUnavailable: 25%
+  template:
+    spec:
+      ports:
+        - name: default
+          # Choisi un port libre sur le node (par exemple : entre 7000 et 9000) et faire un mapping de ce port externe -> vers le containerPort 7654
+          portPolicy: Dynamic
+          # le port ouvert sur le processus du serveur de jeu
+          containerPort: 7654
+          # Protocole utilisé pour ce port. Les options sont :
+          # - « UDP » (par défaut) : utilise le protocole UDP.
+          # - « TCP » : utilise le protocole TCP.
+          # - « TCPUDP » : utilise TCP et UDP et expose le même port hôte pour les deux protocoles.
+          # Cela ajoute un port supplémentaire : le premier est configuré pour TCP et le second pour UDP.
+          protocol: UDP
+    
+      # Vérification de l'état du serveur de jeu en cours d'exécution
+      health:
+        # Désactiver la vérification de l'état de santé. Par défaut, la valeur est false, mais peut être définie sur true.
+        disabled: false
+        # Nombre de secondes après le démarrage du conteneur avant le lancement du contrôle d'intégrité. Par défaut : 5 secondes
+        initialDelaySeconds: 5
+        # Si la fonction `Health()` n'est pas appelée au moins une fois par période (secondes), alors :
+        # le serveur de jeu n'est pas sain. Par défaut : 5.
+        periodSeconds: 5
+        # Nombre minimal d'échecs consécutifs pour qu'une sonde d'intégrité soit considérée comme défaillante après avoir fonctionné correctement.
+        # Valeur par défaut : 3.
+        # Valeur minimale : 1.
+        failureThreshold: 3
+
+      # Paramètres pour le sidecar du serveur de jeu
+      sdkServer:
+        # Le paramètre de niveau de journalisation du serveur SDK possède trois options :
+        # - « Info » (par défaut) : le serveur SDK affichera tous les messages, à l’exception des messages de débogage.
+        # - « Debug » : le serveur SDK affichera tous les messages, y compris les messages de débogage.
+        # - « Error » : le serveur SDK affichera uniquement les messages d’erreur.
+        # - « Trace » : le serveur SDK affichera tous les messages, y compris les informations de traçage détaillées.
+        logLevel: Debug # Ne pas mettre "Trace" avec Quilkin v0.10.0 il ne connait pas "Trace"
+        # Les paramètres grpcPort et httpPort déterminent les ports d'écoute du serveur SDK.
+        grpcPort: 9357
+        httpPort: 9358
+
+      # ================================
+      # Counters Agones (PAR GameServer)
+      # ================================
+      counters:
+        players:
+          # Nombre actuel de joueurs connectés sur CE GameServer.
+          # ⚠️ Cette valeur est un état initial uniquement.
+          # Elle doit être incrémentée/décrémentée dynamiquement
+          # par ton serveur via le SDK Agones quand un joueur join/leave.
+          count: 0
+
+          # Capacité MAX de joueurs que CE GameServer accepte.
+          # Sert de référence pour :
+          # - le matchmaking
+          # - l'autoscaling
+          # - savoir combien de slots restent libres (capacity - count)
+          capacity: 100
+
+      # ================================
+      # Lists Agones (PAR GameServer)
+      # ================================
+      lists:
+        players:
+          # Liste des identifiants des joueurs actuellement connectés
+          # sur CE GameServer.
+          #
+          # ⚠️ Valeur initiale uniquement.
+          # Ton serveur doit ajouter/supprimer les IDs via le SDK Agones
+          # quand un joueur se connecte ou se déconnecte.
+          #
+          # Utile pour :
+          # - debug
+          # - backfill
+          # - tracking précis des sessions
+          values: []
+
+          # Taille maximale de la liste.
+          # Doit généralement correspondre à la capacité max du serveur.
+          capacity: 100
+
+      template:
+        spec:
+          containers:
+            - name: aetherroyale-game-server
+              image: corentin35/rcnet-server-template:${TAG_VERSION}
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  memory: 64Mi
+                  cpu: 20m
+                limits:
+                  memory: 64Mi
+                  cpu: 20m
