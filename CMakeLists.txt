@@ -43,6 +43,41 @@ set(RCNET_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
 set(RCNET_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
 
 # ============================================================
+# Compiler Warnings & Strictness
+# ============================================================
+# Flags d'avertissements et de conformité :
+# - MSVC : /W4, /permissive- (C++ strict), désactivations ciblées
+# - GCC/Clang : -Wall -Wextra -pedantic + exceptions ciblées
+# ============================================================
+function(rcnet_server_template_apply_warnings target_name)
+  target_compile_options(${target_name} PRIVATE
+    # MSVC
+    # /W4 : Niveau d'avertissement 4 (equivalent a -Wextra)
+    # /permissive- : Spécifie un mode de compilation strict pour suivre les standards C++ 
+    # /wd4100 : Désactive l'avertissement pour les paramètres de fonction non utilisés (C4100)
+    "$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W4;/wd4100>"
+    "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/W4;/permissive-;/wd4100>"
+
+    # GCC / Clang / AppleClang - C
+    # -Wall : Active tous les avertissements de base
+    # -Wextra : Active des avertissements supplémentaires
+    # -pedantic : Enforce strictement les standards C++
+    # -Wno-unused-parameter : Désactive les avertissements pour les paramètres de fonction non utilisés
+    # -Wno-error=strict-prototypes : Désactive les erreurs pour les prototypes de fonction stricts en C.
+    "$<$<COMPILE_LANG_AND_ID:C,GNU,Clang,AppleClang>:-Wall;-Wextra;-pedantic;-Wno-unused-parameter;-Wno-error=strict-prototypes>"
+
+    # GCC / Clang / AppleClang - C++
+    "$<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wall;-Wextra;-pedantic;-Wno-unused-parameter>"
+
+    # Clang-specific: newline at end of file
+    # Clang a un warning spécifique pour les fichiers qui ne se terminent pas par une nouvelle ligne (newline at end of file).
+    # -Wno-newline-eof : Désactive les avertissements pour les nouvelles lignes à la fin du fichier
+    "$<$<COMPILE_LANG_AND_ID:C,Clang,AppleClang>:-Wno-newline-eof>"
+    "$<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>:-Wno-newline-eof>"
+  )
+endfunction()
+
+# ============================================================
 # Dépendances vendored — add_subdirectory
 # ============================================================
 # On inclut les dépendances vendored (clonées via setup_dependencies.cmake) 
@@ -115,6 +150,9 @@ add_executable(${PROJECT_NAME}
   ${SOURCES}
   ${HEADERS}
 )
+
+# Apply compiler warnings to the main target
+rcnet_server_template_apply_warnings(${PROJECT_NAME})
 
 # ============================================================
 # Include Directories
