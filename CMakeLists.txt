@@ -40,10 +40,10 @@ endif()
 
 # Toujours désactivé dans un server template
 set(RCNET_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
-set(RCNET_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+set(RCNET_BUILD_TESTS   OFF CACHE BOOL "" FORCE)
 
-# Activer ou non
-set(RCNET_AGONES_ENABLED ON CACHE BOOL "" FORCE)
+# Le reste : défauts, mais la CI peut override avec -D
+set(RCNET_AGONES_ENABLED ON CACHE BOOL "")
 
 # ============================================================
 # Compiler Warnings & Strictness
