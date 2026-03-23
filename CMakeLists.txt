@@ -42,6 +42,9 @@ endif()
 set(RCNET_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
 set(RCNET_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
 
+# Activer ou non
+set(RCNET_AGONES_ENABLED ON CACHE BOOL "" FORCE)
+
 # ============================================================
 # Compiler Warnings & Strictness
 # ============================================================
