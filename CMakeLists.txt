@@ -18,7 +18,7 @@ project(rcnet-server-template
 # ============================================================
 # Language Standards
 # ============================================================
-# CXX   : RCNET est écrit en C++ 17.
+# CXX : RCNET est écrit en C++ 17.
 #
 # C : requis uniquement pour : nats client c..etc
 # ============================================================
