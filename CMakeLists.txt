@@ -7,12 +7,25 @@ cmake_minimum_required(VERSION 3.28.0)
 # Nom du projet : rcnet-server-template
 #
 # Langages :
+#   - C     : Certaines dépendences
 #   - CXX   : C++ pour le moteur de serveur jeu (RCNET) et les 
 #             fonctionnalités principales
 # ============================================================
 project(rcnet-server-template
   LANGUAGES C CXX
 )
+
+# ============================================================
+# Language Standards
+# ============================================================
+# CXX   : RCNET est écrit en C++ 17.
+#
+# C : requis uniquement pour : nats client c..etc
+# ============================================================
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ============================================================
 # Output Directories
